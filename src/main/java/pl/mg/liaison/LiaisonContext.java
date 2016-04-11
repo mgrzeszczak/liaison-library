@@ -10,8 +10,10 @@ import static javafx.scene.input.KeyCode.T;
 public interface LiaisonContext {
 
     Object call() throws Throwable;
-    <T> T getArgument(String name);
     <T> T[] getArguments(Class<? extends T> type);
+    Object[] getArguments();
     Annotation[] getAnnotations();
     Class<?> getReturnType();
+    String getMethodName();
+    String getClassName();
 }

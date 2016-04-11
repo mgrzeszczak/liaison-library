@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
  */
 public interface Liaison {
 
-    //Object call(Method method, Object instance, Object[] args) throws Throwable;
     Object call(LiaisonContext context) throws Throwable;
 
 }

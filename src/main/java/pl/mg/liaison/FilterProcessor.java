@@ -1,22 +1,42 @@
 package pl.mg.liaison;
 
-
+import pl.mg.liaison.filter.Filter;
+import pl.mg.liaison.filter.Filters;
+import pl.mg.liaison.filter.Name;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.TypeVariable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
+import java.lang.reflect.Parameter;
+import java.util.*;
 import java.util.regex.Pattern;
-
 /**
  * Created by Maciej on 10.04.2016.
  */
 final class FilterProcessor {
 
-    private final Filter filter;
+    private final List<FilterContainer> filters;
+    private Map<Method,Boolean> cache = new HashMap<>();
+
+    public FilterProcessor(final Filters filters) {
+        this.filters = new ArrayList<FilterContainer>();
+        for (Filter filter : filters.value()){
+           this.filters.add(new FilterContainer(filter));
+        }
+    }
+
+    public boolean eligible(Method method) {
+        if (cache.containsKey(method)) return cache.get(method);
+        boolean eligible = false;
+        for (int i=0,size=filters.size();i<size;i++)
+            if (filters.get(i).eligible(method)) {
+                eligible = true;
+                break;
+            }
+        cache.put(method,eligible);
+        return eligible;
+    }
+
+    /*private final Filter filter;
 
     private final List<Class<?>> allowedReturnTypes;
     private final List<Class<?>> notAllowedReturnTypes;
@@ -74,13 +94,14 @@ final class FilterProcessor {
 
     private boolean runFilters(Method method) {
         boolean eligible = true;
-        eligible = eligible && filterHasAnnotations(method);
-        eligible = eligible && filterHasThrowables(method);
-        eligible = eligible && filterHasParameters(method);
+        //eligible = eligible && filterHasAnnotations(method);
+        //eligible = eligible && filterHasThrowables(method);
+        //eligible = eligible && filterHasParameters(method);
         eligible = eligible && filterName(method);
         eligible = eligible && filterReturnType(method);
         eligible = eligible && filterParameterTypes(method);
-        eligible = eligible && filterParameterNames(method);
+
+        //eligible = eligible && filterParameterNames(method);
         eligible = eligible && filterAnnotations(method);
         eligible = eligible && filterThrowables(method);
         return eligible;
@@ -110,7 +131,7 @@ final class FilterProcessor {
     private boolean filterParameterTypes(Method method){
         List<Class<?>> parameterTypes = Arrays.asList(method.getParameterTypes());
         if (specifiedParameterTypes.size()!=0){
-            return specifiedParameterTypes.size()==parameterTypes.size() && specifiedParameterTypes.contains(parameterTypes);
+            return specifiedParameterTypes.size()==parameterTypes.size() && specifiedParameterTypes.containsAll(parameterTypes);
         }
         if (allowedParameterTypes.size()==0) {
             for(Class<?> parameterType : parameterTypes) if (notAllowedParameterTypes.contains(parameterType)){
@@ -126,10 +147,12 @@ final class FilterProcessor {
 
     private boolean filterParameterNames(Method method){
         List<String> parameterNames = new ArrayList<String>();
-        for(TypeVariable<Method> variable : method.getTypeParameters())
-            parameterNames.add(variable.getName());
+        for(Parameter parameter : method.getParameters()) {
+            parameterNames.add(parameter.getName());
+            System.out.println(parameter.getName());
+        }
         if (specifiedParameterNames.size()!=0){
-            return specifiedParameterNames.contains(parameterNames);
+            return specifiedParameterNames.size() == parameterNames.size() && specifiedParameterNames.containsAll(parameterNames);
         }
         if (allowedParameterNames.size()==0) {
             for(String parameterName : parameterNames) if (notAllowedParameterNames.contains(parameterName)){
@@ -147,7 +170,7 @@ final class FilterProcessor {
         List<Class<? extends Annotation>> annotations = new ArrayList<Class<? extends Annotation>>();
         for (Annotation annotation : method.getAnnotations()) annotations.add(annotation.getClass());
         if (specifiedAnnotations.size()!=0){
-            return specifiedAnnotations.contains(annotations);
+            return specifiedAnnotations.size() == annotations.size() && specifiedAnnotations.containsAll(annotations);
         }
         if (allowedAnnotations.size()==0){
             for (Class<? extends Annotation> annotation : annotations) if (notAllowedAnnotations.contains(annotation)){
@@ -165,7 +188,7 @@ final class FilterProcessor {
     // todo: think about extending classes and superclasses regarding filter exclusion
     // todo: test all
     private boolean filterThrowables(Method method){
-        /*List<Class<? extends Throwable>> throwables = (List<Class<? extends Throwable>>) Arrays.asList(method.getExceptionTypes());
+        List<Class<? extends Throwable>> throwables = (List<Class<? extends Throwable>>) Arrays.asList(method.getExceptionTypes());
         if (specifiedThrowables.size()!=0){
             return specifiedThrowables.contains(throwables);
         }
@@ -177,8 +200,8 @@ final class FilterProcessor {
         }
         for (Class<? extends Throwable> throwable : throwables) {
             if (notAllowedThrowables.contains(throwable) || !allowedThrowables.contains(throwable)) return false;
-        }*/
+        }
         return true;
-    }
+    }*/
 
 }

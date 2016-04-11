@@ -1,4 +1,4 @@
-package pl.mg.liaison;
+package pl.mg.liaison.filter;
 
 import java.lang.annotation.*;
 
@@ -8,6 +8,21 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Filter {
+
+    Name name() default @Name(regex = ".*");
+    Returns returns() default @Returns(allow = {},disallow = {});
+    Throws _throws() default @Throws(allow = {},disallow = {});
+    Parameters parameters() default @Parameters(allow = {},disallow = {});
+    Annotations annotations() default @Annotations(allow = {},disallow = {});
+
+    // add type annotations
+    // get method annotations from implementing class
+    // specify parameters
+
+
+    /*boolean allowAnnotations() default true;
+    boolean allowThrowables() default true;
+    boolean allowZeroParameters() default true;
 
     Class<?>[] returning() default {};
     Class<?>[] notReturning() default {};
@@ -32,6 +47,6 @@ public @interface Filter {
     boolean hasThrowables() default true;
     Class<? extends Throwable>[] includeThrowables() default {};
     Class<? extends Throwable>[] throwables() default {};
-    Class<? extends Throwable>[] excludeThrowables() default {};
+    Class<? extends Throwable>[] excludeThrowables() default {};*/
 
 }

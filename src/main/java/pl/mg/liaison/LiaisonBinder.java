@@ -1,5 +1,6 @@
 package pl.mg.liaison;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
 import static javafx.scene.input.KeyCode.T;
@@ -16,12 +17,12 @@ public final class LiaisonBinder {
     public static <T> T bind(Object instance, Class<? extends Liaison> liaison) {
         try {
             return tryBind(instance,liaison);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new AssertionError(e.getMessage());
         }
     }
 
-    private static <T> T tryBind(Object instance, Class<? extends Liaison> liaison) throws Exception {
+    private static <T> T tryBind(Object instance, Class<? extends Liaison> liaison) throws Throwable {
         Class<?> _interface = instance.getClass().getInterfaces()[0];
         final Liaison liaison1 = liaison.newInstance();
         return (T) Proxy.newProxyInstance(_interface.getClassLoader(), new Class[]{_interface}, new LiaisonInvocationHandler(liaison1,liaison,instance));

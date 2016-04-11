@@ -7,10 +7,11 @@ import java.lang.reflect.Proxy;
  */
 public interface MyInterface {
 
-    void test();
+    void test() throws Exception;
 
+    @Deprecated
     int test2();
 
-    String test3();
+    String test3(String name);
 
 }

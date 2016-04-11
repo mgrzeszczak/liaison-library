@@ -1,5 +1,8 @@
 package pl.mg.liaison;
 
+import pl.mg.liaison.filter.Filter;
+import pl.mg.liaison.filter.Filters;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -16,19 +19,15 @@ final class LiaisonInvocationHandler implements InvocationHandler {
     private Liaison liaison;
     private Class<? extends Liaison> liaisonClass;
     private Object instance;
-
-    private Map<Method,Boolean> eligibilityCache = new HashMap<Method,Boolean>();
     private Map<Method,LiaisonContext> contextCache = new HashMap<Method, LiaisonContext>();
-    // todo: cache!
-    //private Map<Liaison,Method> cache = new HashMap<Liaison,Method>();
-
     private FilterProcessor filterProcessor;
 
     public LiaisonInvocationHandler(Liaison liaison, Class<? extends Liaison> liaisonClass, Object instance) {
         this.liaison = liaison;
         this.liaisonClass = liaisonClass;
         this.instance = instance;
-        this.filterProcessor = new FilterProcessor(this.liaisonClass.getAnnotation(Filter.class));
+        if (this.liaisonClass.getAnnotation(Filters.class)==null) throw new AssertionError(liaisonClass.getName()+" is not annotated with "+Filters.class.getName());
+        this.filterProcessor = new FilterProcessor(this.liaisonClass.getAnnotation(Filters.class));
     }
 
     @Override
@@ -39,13 +38,7 @@ final class LiaisonInvocationHandler implements InvocationHandler {
             context = new LiaisonContextImpl(method,args,instance);
             contextCache.put(method,context);
         }
-        boolean eligible = true;
-        if (eligibilityCache.containsKey(method)){
-            eligible = eligibilityCache.get(method);
-        } else {
-            eligible = filterProcessor.isEligible(method);
-            cache.put(method,eligible);
-        }
+        boolean eligible = filterProcessor.eligible(method);
         if (eligible) return liaison.call(context);
         else return method.invoke(instance,args);
     }
