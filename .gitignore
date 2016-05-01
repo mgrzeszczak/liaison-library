@@ -12,6 +12,9 @@ build/*
 
 .gradle
 .gradle/*
+gradle
+gradlew
+gradlew.bat
 
 target
 pom.xml.*

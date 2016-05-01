@@ -94,14 +94,6 @@ final class FilterContainer {
 
         List<Class<?>> methodThrowables = Arrays.asList(throwables);
 
-        /*
-        System.out.println("ALLOWED");
-        allowedThrowables.stream().forEach(System.out::println);
-        System.out.println();
-        System.out.println("DISALLOWED");
-        disallowedThrowables.stream().forEach(System.out::println);
-        System.out.println();*/
-
         boolean eligible = false;
         if (allowedThrowables.size()!=0){
             eligible = allowedThrowables.containsAll(methodThrowables);
@@ -115,12 +107,13 @@ final class FilterContainer {
         return eligible;
     }
     private boolean filterAnnotations(Method method){
-        List<Class<?>> methodAnnotations = method.getAnnotations().length==0? new ArrayList(){{add(VoidAnnotation
-                .class);}} : Arrays.asList(method.getAnnotations())
-                .stream()
-                .map(a -> (Class<?>) a.annotationType())
-                .collect(Collectors.toList());
-
+        List<Class<?>> methodAnnotations = new ArrayList<Class<?>>();
+        if (method.getAnnotations().length==0) methodAnnotations.add(VoidAnnotation.class);
+        else {
+            for (Annotation annotation : method.getAnnotations()){
+                methodAnnotations.add(annotation.annotationType());
+            }
+        }
         boolean eligible = false;
         if (allowedAnnotations.size()!=0){
             eligible = allowedAnnotations.containsAll(methodAnnotations);
