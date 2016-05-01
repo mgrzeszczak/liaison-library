@@ -15,7 +15,7 @@ public class ParametersTest {
 
     public static void main(String[] args){
         Interface intrf = LiaisonBinder.bind(new InterfaceImpl(),LiaisonClass.class);
-        intrf.listParameter(new ArrayList<>());
+        intrf.listParameter(new ArrayList<Integer>());
         intrf.onePrimitiveParameter(1);
         intrf.stringIntDoubleParameters("s",1,1);
         intrf.stringParameter("s");

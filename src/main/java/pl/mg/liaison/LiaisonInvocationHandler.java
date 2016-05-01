@@ -19,7 +19,7 @@ final class LiaisonInvocationHandler implements InvocationHandler {
     private final Map<Method,LiaisonContext> contextCache = new HashMap<Method, LiaisonContext>();
     private final FilterProcessor filterProcessor;
 
-    public LiaisonInvocationHandler(Liaison liaison, Class<? extends Liaison> liaisonClass, Object instance) {
+    LiaisonInvocationHandler(Liaison liaison, Class<? extends Liaison> liaisonClass, Object instance) {
         this.liaison = liaison;
         this.liaisonClass = liaisonClass;
         this.instance = instance;

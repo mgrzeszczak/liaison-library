@@ -14,7 +14,7 @@ import java.util.Map;
 final class FilterProcessor {
 
     private final List<FilterContainer> filters;
-    private Map<Method,Boolean> cache = new HashMap<>();
+    private Map<Method,Boolean> cache = new HashMap<Method,Boolean>();
 
     public FilterProcessor(final Filters filters) {
         this.filters = new ArrayList<FilterContainer>();
