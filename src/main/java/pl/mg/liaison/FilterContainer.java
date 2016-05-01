@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Maciej on 11.04.2016.
@@ -30,6 +31,7 @@ final class FilterContainer {
 
     private final List<Class<?>> allowedParameters;
     private final List<Class<?>> disallowedParameters;
+    private final List<Class<?>> exactParameters;
 
     private final List<Class<?>> allowedReturnTypes;
     private final List<Class<?>> disallowedReturnTypes;
@@ -45,10 +47,11 @@ final class FilterContainer {
 
         Class<? extends Throwable>[] allowT = _throws.allow();
         Class<? extends Throwable>[] disallowT = _throws.disallow();
+
         this.allowedThrowables = new ArrayList<Class<?>>(allowT.length);
         this.disallowedThrowables = new ArrayList<Class<?>>(disallowT.length);
         for (int i=0;i<allowT.length;i++) allowedThrowables.add(allowT[i]);
-        for (int i=0;i<disallowT.length;i++) allowedThrowables.add(disallowT[i]);
+        for (int i=0;i<disallowT.length;i++) disallowedThrowables.add(disallowT[i]);
 
         Class<? extends Annotation>[] allowA = annotations.allow();
         Class<? extends Annotation>[] disallowA = annotations.disallow();
@@ -59,8 +62,12 @@ final class FilterContainer {
 
         this.allowedParameters = Arrays.asList(parameters.allow());
         this.disallowedParameters = Arrays.asList(parameters.disallow());
+        this.exactParameters = Arrays.asList(parameters.exact());
+
+
         this.allowedReturnTypes = Arrays.asList(returns.allow());
         this.disallowedReturnTypes = Arrays.asList(returns.disallow());
+
     }
 
     public boolean eligible(Method method){
@@ -75,32 +82,26 @@ final class FilterContainer {
     private boolean filterName(Method method){
         return pattern.matcher(method.getName()).matches();
     }
+
     private boolean filterReturns(Method method){
         Class<?> returnType = method.getReturnType();
-        Class<?>[] allow = returns.allow();
-        Class<?>[] disallow = returns.disallow();
-
-        boolean eligible = false;
-        if (allow.length!=0) {
-            for (int i = 0, size = allow.length; i < size; i++)
-                if (allow[i].equals(returnType)) {
-                    eligible = true;
-                    break;
-                }
-        }
-        else eligible = true;
-        if (eligible == false) return false;
-        for (int i=0,size=disallow.length;i<size;i++){
-            if (disallow[i].equals(returnType)){
-                eligible = false;
-                break;
-            }
-        }
-        return eligible;
+        if (allowedReturnTypes.size()==0) return !disallowedReturnTypes.contains(returnType);
+        return (allowedReturnTypes.contains(returnType) && !disallowedReturnTypes.contains(returnType));
     }
+
     private boolean filterThrowables(Method method){
         Class<?>[] throwables = method.getExceptionTypes().length==0? new Class<?>[]{VoidThrowable.class} : method.getExceptionTypes();
+
         List<Class<?>> methodThrowables = Arrays.asList(throwables);
+
+        /*
+        System.out.println("ALLOWED");
+        allowedThrowables.stream().forEach(System.out::println);
+        System.out.println();
+        System.out.println("DISALLOWED");
+        disallowedThrowables.stream().forEach(System.out::println);
+        System.out.println();*/
+
         boolean eligible = false;
         if (allowedThrowables.size()!=0){
             eligible = allowedThrowables.containsAll(methodThrowables);
@@ -114,8 +115,12 @@ final class FilterContainer {
         return eligible;
     }
     private boolean filterAnnotations(Method method){
-        Class<?>[] annotations = method.getAnnotations().length==0? new Class<?>[]{VoidAnnotation.class} : method.getExceptionTypes();
-        List<Class<?>> methodAnnotations = Arrays.asList(annotations);
+        List<Class<?>> methodAnnotations = method.getAnnotations().length==0? new ArrayList(){{add(VoidAnnotation
+                .class);}} : Arrays.asList(method.getAnnotations())
+                .stream()
+                .map(a -> (Class<?>) a.annotationType())
+                .collect(Collectors.toList());
+
         boolean eligible = false;
         if (allowedAnnotations.size()!=0){
             eligible = allowedAnnotations.containsAll(methodAnnotations);
@@ -129,10 +134,13 @@ final class FilterContainer {
         return eligible;
     }
     private boolean filterParameters(Method method){
-        Class<?>[] parameters = method.getParameterTypes().length==0? new Class<?>[]{void.class} : method.getExceptionTypes();
+        Class<?>[] parameters = method.getParameterTypes().length==0? new Class<?>[]{void.class} : method.getParameterTypes();
         List<Class<?>> methodParameters = Arrays.asList(parameters);
 
-        if (method.getParameterTypes().length<this.parameters.minCount() || method.getParameterTypes().length>this.parameters.maxCount()) return false;
+        if (exactParameters.size()>0) return methodParameters.equals(exactParameters);
+
+        if (method.getParameterTypes().length<this.parameters.minCount() ||
+                method.getParameterTypes().length>this.parameters.maxCount()) return false;
 
         boolean eligible = false;
         if (allowedParameters.size()!=0){
@@ -145,6 +153,22 @@ final class FilterContainer {
             }
         }
         return eligible;
+    }
+
+    private List<Class<?>> packPrimitives(Class<?>[] classes){
+        List<Class<?>> packed = new ArrayList<Class<?>>();
+        for (Class<?> c : classes){
+            if (c.equals(byte.class)) packed.add(Byte.class);
+            else if (c.equals(short.class)) packed.add(Short.class);
+            else if (c.equals(int.class)) packed.add(Integer.class);
+            else if (c.equals(long.class)) packed.add(Long.class);
+            else if (c.equals(float.class)) packed.add(Float.class);
+            else if (c.equals(double.class)) packed.add(Double.class);
+            else if (c.equals(char.class)) packed.add(Character.class);
+            else if (c.equals(boolean.class)) packed.add(Boolean.class);
+            else packed.add(c);
+        }
+        return packed;
     }
 
 }

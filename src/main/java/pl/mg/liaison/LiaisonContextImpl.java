@@ -44,6 +44,11 @@ final class LiaisonContextImpl implements LiaisonContext {
     }
 
     @Override
+    public Annotation[][] getParameterAnnotations() {
+        return method.getParameterAnnotations();
+    }
+
+    @Override
     public Class<?> getReturnType() {
         return method.getReturnType();
     }
@@ -56,6 +61,16 @@ final class LiaisonContextImpl implements LiaisonContext {
     @Override
     public String getClassName() {
         return method.getDeclaringClass().getName();
+    }
+
+    @Override
+    public Class<?>[] getExceptionTypes() {
+        return method.getExceptionTypes();
+    }
+
+    @Override
+    public int getModifiers() {
+        return method.getModifiers();
     }
 
 }

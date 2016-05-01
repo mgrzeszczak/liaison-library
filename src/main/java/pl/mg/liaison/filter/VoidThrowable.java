@@ -6,7 +6,7 @@ package pl.mg.liaison.filter;
 public final class VoidThrowable extends Throwable {
 
     private VoidThrowable(){
-        throw new AssertionError("No instances");
+        throw new AssertionError("No instances.");
     }
 
 }

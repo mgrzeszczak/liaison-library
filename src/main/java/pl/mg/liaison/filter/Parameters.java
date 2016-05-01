@@ -23,9 +23,14 @@ public @interface Parameters {
      */
     Class<?>[] disallow()  default {};
 
+    /**
+     * Specifies an exact list of parameters that must be matched ( in the same * order ). Ignored if empty. If specified, other fields of this
+     * annotation are ignored.
+     * @return
+     */
+    Class<?>[] exact() default {};
+
     int minCount() default 0;
     int maxCount() default Integer.MAX_VALUE;
 
 }
-
-

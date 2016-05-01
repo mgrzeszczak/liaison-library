@@ -1,6 +1,5 @@
 package pl.mg.liaison;
 
-import pl.mg.liaison.filter.Filter;
 import pl.mg.liaison.filter.Filters;
 
 import java.lang.reflect.InvocationHandler;
@@ -8,19 +7,17 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.sun.corba.se.impl.util.RepositoryId.cache;
-
 
 /**
  * Created by Maciej on 10.04.2016.
  */
 final class LiaisonInvocationHandler implements InvocationHandler {
 
-    private Liaison liaison;
-    private Class<? extends Liaison> liaisonClass;
-    private Object instance;
-    private Map<Method,LiaisonContext> contextCache = new HashMap<Method, LiaisonContext>();
-    private FilterProcessor filterProcessor;
+    private final Liaison liaison;
+    private final Class<? extends Liaison> liaisonClass;
+    private final Object instance;
+    private final Map<Method,LiaisonContext> contextCache = new HashMap<Method, LiaisonContext>();
+    private final FilterProcessor filterProcessor;
 
     public LiaisonInvocationHandler(Liaison liaison, Class<? extends Liaison> liaisonClass, Object instance) {
         this.liaison = liaison;

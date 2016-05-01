@@ -1,9 +1,6 @@
 package pl.mg.liaison;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-
-import static javafx.scene.input.KeyCode.T;
 
 /**
  * Created by Maciej on 10.04.2016.

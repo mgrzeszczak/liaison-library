@@ -10,6 +10,9 @@ out
 lib
 build/*
 
+.gradle
+.gradle/*
+
 target
 pom.xml.*
 release.properties

@@ -7,6 +7,12 @@ import java.lang.annotation.Target;
 
 /**
  * Created by Maciej on 11.04.2016.
+ *
+ * Provides classes implementing Liaison interface with instructions
+ * which methods to modify.
+ *
+ * Consists of at least one filter, results of all filters are joined and
+ * any method that is contained in such a set will be affected.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

@@ -8,7 +8,7 @@ import java.lang.annotation.Annotation;
 public final class VoidAnnotation implements Annotation {
 
     private VoidAnnotation(){
-        throw new AssertionError("No instances");
+        throw new AssertionError("No instances.");
     }
 
     @Override
