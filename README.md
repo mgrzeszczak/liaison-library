@@ -1,5 +1,5 @@
 # liaison-library
-Simple library allowing to quickly modify selected methods of interface implementation.
+Simple library allowing to quickly modify selected methods of interface implementation without touching the implementation code at all.
 
 # Example:
 Modify HashMap so that a message is printed before methods that take no parameters are executed.
